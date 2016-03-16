@@ -1,0 +1,9 @@
+# bsddb3 needs this on OS X:
+# brew install berkeley-db4
+# BERKELEYDB_DIR=$(brew --cellar)/berkeley-db4/4.8.30 pip install bsddb3
+#
+bsddb3
+scrapy
+scrapy-random-useragent
+# scrapylib
+chardet
