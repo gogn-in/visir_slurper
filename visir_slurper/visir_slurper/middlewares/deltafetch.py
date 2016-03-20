@@ -103,7 +103,7 @@ class DeltaFetch(object):
             if isinstance(r, Request):
                 key = self._get_key(r)
                 if self.db.has_key(key):
-                    self.logger.info("Ignoring already visited: %s" % r)
+                    self.logger.debug("Ignoring already visited: %s" % r)
                     continue
             elif isinstance(r, BaseItem):
                 key = self._get_key(response.request)
