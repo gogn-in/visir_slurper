@@ -1,5 +1,5 @@
 .scrapy
 data
 visir_news_article_spider.db
-.pyc
+*.pyc
 data-*.tar.gz
