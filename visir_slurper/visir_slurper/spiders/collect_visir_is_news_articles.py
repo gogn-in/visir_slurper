@@ -63,7 +63,7 @@ class VisirNewsArticleSpide(scrapy.Spider):
         try:
             date_published = soup.find(attrs={"itemprop": "datePublished"})["content"]
             headline = soup.find(attrs={"itemprop": "headline"}).text
-        except AttributeError:
+        except (AttributeError, TypeError):
             # Don"t care about articles without dates or headlines
             return
         description = soup.find(attrs={"itemprop": "description"})["content"]
