@@ -45,7 +45,7 @@ class VisirSlurperSaveArticleByDate(object):
             f.write(_encoder.encode(item))
         item["article_text"] = article_text
         item["body"] = body
-        logger.info("Saved {}".format(item["headline"].encode("utf-8")))
+        logger.debug("Saved {}".format(item["headline"].encode("utf-8")))
         return item
 
 
