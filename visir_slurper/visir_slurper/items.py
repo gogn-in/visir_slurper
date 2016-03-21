@@ -11,3 +11,5 @@ class VisirSlurperItem(scrapy.Item):
     headline = scrapy.Field()
     description = scrapy.Field()
     body = scrapy.Field()
+    id = scrapy.Field()
+    category = scrapy.Field()
