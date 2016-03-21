@@ -14,8 +14,6 @@ logger = logging.getLogger(__name__)
 _encoder = ScrapyJSONEncoder()
 
 
-# TODO: Refactor these two together and use a settings flag
-
 class VisirSlurperSaveArticleByDate(object):
     def __init__(self):
         pass
