@@ -52,28 +52,19 @@ class VisirSlurperSaveArticleByDate(object):
 class VisirSlurperSaveAuthorArticles(object):
     def process_item(self, item, spider):
         author = item['author']
-        filename = author.replace(" ", "_") + ".json"
+        filename = author.replace(" ", "_") + ".csv"
         directory = os.path.join(DATA_DIR,
                                  "authors")
         filename = os.path.join(directory, filename)
         if not os.path.exists(directory):
             os.makedirs(directory)
         if os.path.exists(filename):
-            with open(filename, "r") as f:
-                data = json.loads(f.read())
-                ids = data['articles']
-                ids.append(item["id"])
-                data['articles'] = ids
-            with open(filename, "w") as f:
-                f.write(_encoder.encode(data))
+            with open(filename, "ab") as f:
+                f.write(item["id"] + "\n")
         else:
-            data = {}
-            with open(filename, "w") as f:
-                ids = []
-                ids.append(item["id"])
-                data['articles'] = ids
-                data['author'] = item['author']
-                f.write(_encoder.encode(data))
+            with open(filename, "wb") as f:
+                f.write(item["author"].encode("utf-8") + "\n")
+                f.write(item["id"] + "\n")
         return item
 
     def close_spider(self, spider):
