@@ -18,7 +18,7 @@ class VisirNewsArticleSpide(scrapy.Spider):
         # TODO: make this a setting or a recursive crawl
         # Currently we go back 200 overview pages but they are
         # at least 1400
-        range_ids = [x for x in range(0, 200)]
+        range_ids = [x for x in range(0, 1500)]
         for page in range_ids:
             request = self.make_requests_from_url(
                         BASE_URL.format(page)
