@@ -6,4 +6,4 @@ bsddb3
 scrapy
 scrapy-random-useragent
 # scrapylib
-chardet
+cchardet
