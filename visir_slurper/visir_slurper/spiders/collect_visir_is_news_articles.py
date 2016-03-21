@@ -111,7 +111,7 @@ class VisirNewsArticleSpide(scrapy.Spider):
         item["article_text"] = text
         item["description"] = description
         item['category'] = category
-        item["body"] = response.body.decode("Windows-1252")
+        item["body"] = response.body.decode("iso-8859-1")
         # strip
         item = self.clean_items(item)
         yield item
