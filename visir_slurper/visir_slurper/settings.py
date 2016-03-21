@@ -45,7 +45,6 @@ DOWNLOADER_MIDDLEWARES = {
 
 
 ITEM_PIPELINES = {
-    'visir_slurper.pipelines.VisirSlurperSaveArticleByAuthor': 300,
-    # Uncomment to also save by date
-    #'visir_slurper.pipelines.VisirSlurperSaveArticleByDate': 350,
+    'visir_slurper.pipelines.VisirSlurperSaveArticleByDate': 300,
+    'visir_slurper.pipelines.VisirSlurperSaveAuthorArticles': 350,
 }

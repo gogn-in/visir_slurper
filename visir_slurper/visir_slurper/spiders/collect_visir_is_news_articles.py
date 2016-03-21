@@ -51,6 +51,12 @@ class VisirNewsArticleSpide(scrapy.Spider):
                 text += "\n"
         return "\n".join([x for x in text.splitlines() if x.strip()])
 
+    def clean_items(self, item):
+        temp = {}
+        for k, v in item.items():
+            temp[k.strip()] = v.strip()
+        return temp
+
     def parse_article_contents(self, response):
         """
         Parse a news article
@@ -59,6 +65,8 @@ class VisirNewsArticleSpide(scrapy.Spider):
         # Drop scripts
         [s.extract() for s in soup("script")]
         item = VisirSlurperItem()
+        id = response.url.split("/")[-1:][0]
+        item["id"] = id
         item["url"] = response.url
         try:
             date_published = soup.find(attrs={"itemprop": "datePublished"})["content"]
@@ -67,15 +75,20 @@ class VisirNewsArticleSpide(scrapy.Spider):
             # Don"t care about articles without dates or headlines
             return
         description = soup.find(attrs={"itemprop": "description"})["content"]
+        default_author = u"unknown"
         try:
             # Multiple authors is messed up in visir.is markup
             # This handles that
             author = soup.find_all(attrs={"itemprop": "author"})
-            author = " ".join([x.text.strip() for x in author]).strip()
+            if author:
+                author = " og ".join([x.text.strip() for x in author]).strip()
+            else:
+                author = default_author
         except AttributeError:
-            # If no author then leave it an empty string, we assign it later
-            # in the export pipelines.
-            author = u""
+            # If no author then assign 'unknown'
+            author = default_author
+        category = soup.find(class_="source-t FRETTIR-cat").text
+
         # drop cruft
         crufts = ["meta",
                   "mob-share",
@@ -97,5 +110,8 @@ class VisirNewsArticleSpide(scrapy.Spider):
         item["author"] = author
         item["article_text"] = text
         item["description"] = description
+        item['category'] = category
         item["body"] = response.body.decode("Windows-1252")
+        # strip
+        item = self.clean_items(item)
         yield item
