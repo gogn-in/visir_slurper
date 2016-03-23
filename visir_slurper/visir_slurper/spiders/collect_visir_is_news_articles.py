@@ -7,8 +7,8 @@ from visir_slurper.items import VisirSlurperItem
 
 logger = logging.getLogger(__name__)
 
-BASE_URL = "http://www.visir.is/section/FRETTIR?page={}"
-
+BASE_OVERVIEW_URL = "http://www.visir.is/section/FRETTIR?page={}"
+BASE_URL = "http://www.visir.is"
 
 class VisirNewsArticleSpide(scrapy.Spider):
     name = "visir_news_article_spider"
@@ -21,7 +21,7 @@ class VisirNewsArticleSpide(scrapy.Spider):
         range_ids = [x for x in range(0, 1500)]
         for page in range_ids:
             request = self.make_requests_from_url(
-                        BASE_URL.format(page)
+                        BASE_OVERVIEW_URL.format(page)
                             )
             yield request
 
@@ -32,7 +32,7 @@ class VisirNewsArticleSpide(scrapy.Spider):
         soup = BeautifulSoup(response.body, "html.parser")
         middle_section = soup.find(class_="x6 ml0")
         for link in middle_section.find_all("h3"):
-            detail_url = "http://visir.is" + link.a["href"]
+            detail_url = BASE_URL + link.a["href"]
             request = scrapy.Request(detail_url,
                                      callback=self.parse_article_contents)
             # use the url as a deltafetch key
