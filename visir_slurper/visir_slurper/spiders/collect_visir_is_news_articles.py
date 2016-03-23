@@ -52,7 +52,7 @@ class VisirNewsArticleSpide(scrapy.Spider):
         return "\n".join([x for x in text.splitlines() if x.strip()])
 
     def clean_items(self, item):
-        temp = {}
+        temp = VisirSlurperItem()
         for k, v in item.items():
             temp[k.strip()] = v.strip()
         return temp
