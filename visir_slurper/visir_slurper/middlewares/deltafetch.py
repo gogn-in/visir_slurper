@@ -93,7 +93,7 @@ class DeltaFetch(object):
             if isinstance(r, Request):
                 key = self._get_key(r)
                 if self.db.has_key(key):
-                    spider.log("Ignoring already visited: %s" % r, level=log.INFO)
+                    spider.log("Ignoring already visited: %s" % r, level=log.DEBUG)
                     self.stats.inc_value('deltafetch/skipped', spider=spider)
                     continue
             elif isinstance(r, BaseItem):
