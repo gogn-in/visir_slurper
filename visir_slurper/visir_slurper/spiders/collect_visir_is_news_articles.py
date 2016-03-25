@@ -57,13 +57,13 @@ class VisirNewsArticleSpide(scrapy.Spider):
         if links:
             logger.debug("len links {}".format(len(links)))
             for link in links:
-            detail_url = BASE_URL + link.a["href"]
-            request = scrapy.Request(detail_url,
-                                     callback=self.parse_article_contents)
-            # use the url as a deltafetch key
-            request.meta["deltafetch_key"] = str(detail_url.encode("iso-8859-1"))
+                detail_url = BASE_URL + link.a["href"]
+                request = scrapy.Request(detail_url,
+                                         callback=self.parse_article_contents)
+                # use the url as a deltafetch key
+                request.meta["deltafetch_key"] = str(detail_url.encode("iso-8859-1"))
                 # debugging skip
-            yield request
+                yield request
             # Find the next page
             paging_url = soup.find(class_="paging").find("a")
             paging_url = BASE_URL + paging_url["href"]
@@ -121,7 +121,13 @@ class VisirNewsArticleSpide(scrapy.Spider):
             if author:
                 author = " og ".join([x.text.strip() for x in author]).strip()
             else:
-                author = default_author
+                # Some articles have the author in the text for the meta class
+                # <div class="meta">Jónas Sen skrifar</div>
+                author = soup.find(class_="meta")
+                if author:
+                    author = author.text.strip().replace(" skrifar", "")
+                else:
+                    author = default_author
         except AttributeError:
             # If no author then assign 'unknown'
             author = default_author
