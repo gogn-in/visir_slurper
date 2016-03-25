@@ -4,11 +4,15 @@ import logging
 import scrapy
 from bs4 import BeautifulSoup
 from visir_slurper.items import VisirSlurperItem
+import re
 
 logger = logging.getLogger(__name__)
 
-BASE_OVERVIEW_URL = "http://www.visir.is/section/FRETTIR?page={}"
+BASE_OVERVIEW_URL = "http://www.visir.is/section/{}?page={}"
 BASE_URL = "http://www.visir.is"
+
+CATS = ["FRETTIR", "VIDSKIPTI"]
+
 
 class VisirNewsArticleSpide(scrapy.Spider):
     name = "visir_news_article_spider"
@@ -18,12 +22,13 @@ class VisirNewsArticleSpide(scrapy.Spider):
         # TODO: make this a setting or a recursive crawl
         # Currently we go back 200 overview pages but they are
         # at least 1400
-        range_ids = [x for x in range(0, 1500)]
-        for page in range_ids:
-            request = self.make_requests_from_url(
-                        BASE_OVERVIEW_URL.format(page)
-                            )
-            yield request
+        for cat in CATS:
+            range_ids = [x for x in range(0, 1500)]
+            for page in range_ids:
+                request = self.make_requests_from_url(
+                            BASE_OVERVIEW_URL.format(cat, page)
+                                )
+                yield request
 
     def parse(self, response):
         logger.info("Parsing {}".format(response.url))
@@ -87,7 +92,7 @@ class VisirNewsArticleSpide(scrapy.Spider):
         except AttributeError:
             # If no author then assign 'unknown'
             author = default_author
-        category = soup.find(class_="source-t FRETTIR-cat").text
+        category = soup.find(class_=re.compile("source-t")).text
 
         # drop cruft
         crufts = ["meta",
