@@ -34,7 +34,7 @@ CATS = ["FRETTIR01",                    # fréttir - innlent
         "LIFID08",                      # lífið - menning
         "LIFID09",                      # lífið - heilsuvísir
         "LIFID12",                      # lífið - leikjavísir
-        "LIFID13",                      # lífið - matarvísir
+        # "LIFID13",                      # lífið - matarvísir
         "LIFID19",                      # lífið - kynningar
 
         ]
