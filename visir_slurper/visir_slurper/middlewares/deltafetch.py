@@ -1,21 +1,11 @@
-import os
-import time
+import os, time
 
 from scrapy.http import Request
 from scrapy.item import BaseItem
 from scrapy.utils.request import request_fingerprint
 from scrapy.utils.project import data_path
 from scrapy.exceptions import NotConfigured
-from scrapy import signals
-import logging
-
-logger = logging.getLogger(__name__)
-
-# Custom version of the DeltaFetch middleware from scrapylib:
-# https://github.com/scrapinghub/scrapylib
-
-# Custom in the fact that the latest version of scrapy has deprecated
-# scrapy.log. This version uses python logging.
+from scrapy import log, signals
 
 
 class DeltaFetch(object):
@@ -46,7 +36,7 @@ class DeltaFetch(object):
 
     """
 
-    def __init__(self, dir, reset=False):
+    def __init__(self, dir, stats=None, reset=False):
         dbmodule = None
         try:
             dbmodule = __import__('bsddb3').db
@@ -60,7 +50,7 @@ class DeltaFetch(object):
         self.dbmodule = dbmodule
         self.dir = dir
         self.reset = reset
-        self.logger = logging.getLogger(__name__)
+        self.stats = stats
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -69,7 +59,7 @@ class DeltaFetch(object):
             raise NotConfigured
         dir = data_path(s.get('DELTAFETCH_DIR', 'deltafetch'))
         reset = s.getbool('DELTAFETCH_RESET')
-        o = cls(dir, reset)
+        o = cls(dir, crawler.stats, reset)
         crawler.signals.connect(o.spider_opened, signal=signals.spider_opened)
         crawler.signals.connect(o.spider_closed, signal=signals.spider_closed)
         return o
@@ -86,7 +76,7 @@ class DeltaFetch(object):
                          dbtype=self.dbmodule.DB_HASH,
                          flags=flag)
         except Exception:
-            logger.critical("Failed to open DeltaFetch database at %s, "
+            spider.log("Failed to open DeltaFetch database at %s, "
                        "trying to recreate it" % dbpath)
             if os.path.exists(dbpath):
                 os.remove(dbpath)
@@ -103,11 +93,13 @@ class DeltaFetch(object):
             if isinstance(r, Request):
                 key = self._get_key(r)
                 if self.db.has_key(key):
-                    self.logger.debug("Ignoring already visited: %s" % r)
+                    spider.log("Ignoring already visited: %s" % r, level=log.INFO)
+                    self.stats.inc_value('deltafetch/skipped', spider=spider)
                     continue
             elif isinstance(r, BaseItem):
                 key = self._get_key(response.request)
                 self.db[key] = str(time.time())
+                self.stats.inc_value('deltafetch/stored', spider=spider)
             yield r
 
     def _get_key(self, request):
