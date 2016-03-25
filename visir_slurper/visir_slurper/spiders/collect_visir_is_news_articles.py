@@ -8,27 +8,44 @@ import re
 
 logger = logging.getLogger(__name__)
 
-BASE_OVERVIEW_URL = "http://www.visir.is/section/{}?page={}"
+BASE_OVERVIEW_URL = "http://www.visir.is/section/{}"
 BASE_URL = "http://www.visir.is"
 
-CATS = ["FRETTIR", "VIDSKIPTI"]
+CATS = ["FRETTIR01",                    # fréttir - innlent
+        "FRETTIR02",                    # fréttir - erlent
+        "FRETTIR08",                    # fréttir - bílar
+        "VIDSKIPTI06",                  # viðskipti - innlent
+        "VIDSKIPTI07",                  # viðskipti - erlent
+        "VIDSKIPTI03",                  # viðskipti - kynningar
+        "IDROTTIR0102",                 # íþróttir - enski boltinn
+        "IDROTTIR02",                   # íþróttir - handbolti]
+        "IDROTTIR03",                   # íþróttir - körfubolti
+        "IDROTTIR0101",                 # íþróttir - íslenski boltinn
+        "IDROTTIR01",                   # íþróttir - fótbolti
+        "IDROTTIR05",                   # íþróttir - golf
+        "IDROTTIR&template=newslist",   # íþróttir - aðrar íþróttir
+        "IDROTTIR04",                   # íþróttir - formúla 1
+        "IDROTTIR06",                   # íþróttir - veiði
+        "LIFID01",                      # lífið
+        "LIFID02",                      # lífið - tónlist
+        "LIFID03",                      # lífið - bíó og sjónvarp
+        "LIFID04",                      # lífið - tíska og hönnun
+        "LIFID05",                      # lífið - gagnrýni
+        "LIFID08",                      # lífið - menning
+        "LIFID09",                      # lífið - heilsuvísir
+        "LIFID12",                      # lífið - leikjavísir
+        "LIFID13",                      # lífið - matarvísir
+        "LIFID19",                      # lífið - kynningar
+
+        ]
+
+CATS = ["LIFID13"]
 
 
 class VisirNewsArticleSpide(scrapy.Spider):
     name = "visir_news_article_spider"
     allowed_domains = ["visir.is"]
-
-    def start_requests(self):
-        # TODO: make this a setting or a recursive crawl
-        # Currently we go back 200 overview pages but they are
-        # at least 1400
-        for cat in CATS:
-            range_ids = [x for x in range(0, 1500)]
-            for page in range_ids:
-                request = self.make_requests_from_url(
-                            BASE_OVERVIEW_URL.format(cat, page)
-                                )
-                yield request
+    start_urls = [BASE_OVERVIEW_URL.format(x) for x in CATS]
 
     def parse(self, response):
         logger.info("Parsing {}".format(response.url))
@@ -36,13 +53,29 @@ class VisirNewsArticleSpide(scrapy.Spider):
         # doesn"t matter since visir.is is so sloooooooow anyway
         soup = BeautifulSoup(response.body, "html.parser")
         middle_section = soup.find(class_="x6 ml0")
-        for link in middle_section.find_all("h3"):
+        links = middle_section.find_all("h3")
+        if links:
+            logger.debug("len links {}".format(len(links)))
+            for link in links:
             detail_url = BASE_URL + link.a["href"]
             request = scrapy.Request(detail_url,
                                      callback=self.parse_article_contents)
             # use the url as a deltafetch key
             request.meta["deltafetch_key"] = str(detail_url.encode("iso-8859-1"))
+                # debugging skip
             yield request
+            # Find the next page
+            paging_url = soup.find(class_="paging").find("a")
+            paging_url = BASE_URL + paging_url["href"]
+            logger.debug("Next: {}".format(paging_url))
+            request = scrapy.Request(paging_url,
+                                    callback=self.parse)
+            yield request
+        else:
+            # If no articles were found then we are done
+            logger.info("Nothing found for {}".format(response.url))
+            cat = response.url.split("/")[-1:][0].split("?")[0]
+            logger.info("We are done with category: {}".format(cat))
 
     def text_with_newlines(self, elem):
         """
