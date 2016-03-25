@@ -60,13 +60,15 @@ class VisirNewsArticleSpide(scrapy.Spider):
                                          callback=self.parse_article_contents)
                 # use the url as a deltafetch key
                 request.meta["deltafetch_key"] = str(detail_url.encode("iso-8859-1"))
-                # debugging skip
                 yield request
-            # Find the next page
+            # Find the next page using the category url as some categories
+            # switch it up. I'm looking at you IDROTTIR
             paging_url = soup.find(class_="paging").find("a")
-            paging_url = BASE_URL + paging_url["href"]
+            paging_url = paging_url["href"].split("?")[-1:][0]
+            cat_url = response.url.split("?")[0]
+            follow_url = "?".join([cat_url, paging_url])
             logger.debug("Next: {}".format(paging_url))
-            request = scrapy.Request(paging_url,
+            request = scrapy.Request(follow_url,
                                     callback=self.parse)
             yield request
         else:
