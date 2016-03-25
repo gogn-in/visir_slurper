@@ -39,8 +39,6 @@ CATS = ["FRETTIR01",                    # fréttir - innlent
 
         ]
 
-CATS = ["LIFID13"]
-
 
 class VisirNewsArticleSpide(scrapy.Spider):
     name = "visir_news_article_spider"
