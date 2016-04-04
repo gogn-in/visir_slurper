@@ -114,6 +114,7 @@ class VisirNewsArticleSpide(scrapy.Spider):
             return
         description = soup.find(attrs={"itemprop": "description"})["content"]
         default_author = u"unknown"
+        default_possible_authors = u""
         try:
             # Multiple authors is messed up in visir.is markup
             # This handles that
@@ -121,16 +122,15 @@ class VisirNewsArticleSpide(scrapy.Spider):
             if author:
                 author = " og ".join([x.text.strip() for x in author]).strip()
             else:
-                # Some articles have the author in the text for the meta class
-                # <div class="meta">Jónas Sen skrifar</div>
-                author = soup.find(class_="meta")
-                if author:
-                    author = author.text.strip().replace(" skrifar", "")
-                else:
-                    author = default_author
+                author = default_author
         except AttributeError:
             # If no author then assign 'unknown'
             author = default_author
+        possible_authors = soup.find(class_="meta")
+        if possible_authors is not None:
+            possible_authors = possible_authors.text.strip()
+        else:
+            possible_authors = default_possible_authors
         category = soup.find(class_=re.compile("source-t")).text
 
         # drop cruft
@@ -152,6 +152,7 @@ class VisirNewsArticleSpide(scrapy.Spider):
         item["date_published"] = date_published
         item["headline"] = headline
         item["author"] = author
+        item["possible_authors"] = possible_authors
         item["article_text"] = text
         item["description"] = description
         item['category'] = category
