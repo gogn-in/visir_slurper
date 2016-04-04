@@ -7,3 +7,4 @@ scrapy
 scrapy-random-useragent
 # scrapylib
 cchardet
+beautifulsoup4
