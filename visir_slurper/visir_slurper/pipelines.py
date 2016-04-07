@@ -53,6 +53,7 @@ class VisirSlurperSaveAuthorArticles(object):
     def process_item(self, item, spider):
         author = item['author']
         filename = author.replace(" ", "_") + ".csv"
+        filename = filename.lower()
         directory = os.path.join(DATA_DIR,
                                  "authors")
         filename = os.path.join(directory, filename)
