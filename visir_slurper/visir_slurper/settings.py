@@ -5,16 +5,11 @@
 import os
 
 BOT_NAME = 'visir_slurper'
-
 SPIDER_MODULES = ['visir_slurper.spiders']
 NEWSPIDER_MODULE = 'visir_slurper.spiders'
-
 TELNETCONSOLE_ENABLED = False
-
 USER_AGENT_LIST = "user_agents.txt"
-
 LOG_LEVEL = "INFO"
-
 DATA_DIR = "data"
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
