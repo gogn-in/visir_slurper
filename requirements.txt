@@ -5,6 +5,7 @@
 bsddb3
 scrapy
 scrapy-random-useragent
+scrapy-deltafetch==1.2.1
 # scrapylib
 cchardet
 beautifulsoup4

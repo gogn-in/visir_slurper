@@ -27,7 +27,7 @@ CONCURRENT_REQUESTS_PER_DOMAIN = 32
 # COOKIES_ENABLED=False
 
 SPIDER_MIDDLEWARES = {
-                    'visir_slurper.middlewares.deltafetch.DeltaFetch': 100,
+                    'scrapy_deltafetch.DeltaFetch': 100,
                      }
 
 DELTAFETCH_ENABLED = True
